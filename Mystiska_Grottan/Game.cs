@@ -8,8 +8,8 @@ namespace Mystiska_Grottan
 
         static bool spela = false;
         static Spelare spelare;
-        static void Main(string[] args)
-        {
+          public static void Main()
+          {
 
             Meny();
 

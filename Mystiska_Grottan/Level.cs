@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Mystiska_Grottan
 {
@@ -13,6 +14,9 @@ namespace Mystiska_Grottan
         static int currentXPos;
 
         static int fightMenyVal = 0;
+        static bool playerInFight = false;
+        static bool spelaresTur = false;
+
         static string[,] fightMeny = { { "Attack", "1" }, { "Items", "0" }, { "Pass", "0" }, { "Flee", "0" } };
         public Level(int höjd, int bredd, string levelNamn)
         {
@@ -61,6 +65,7 @@ namespace Mystiska_Grottan
             Console.Clear();
             Kvadrat[,] levelInnehåll = level.kvadrater;
             Console.WriteLine($"{level.levelNamn}  Score: {Spelare.Score}");
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
             for (int i = -1; i <= levelInnehåll.GetLength(0); i++)
             {
                 for (int j = -1; j <= levelInnehåll.GetLength(1); j++)
@@ -111,32 +116,35 @@ namespace Mystiska_Grottan
                     {
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.Write("☻");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
                     }
 
                     else if (levelInnehåll[i, j].Kista)
                     {
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
                         Console.Write("■");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
                     }
 
                     else if (levelInnehåll[i, j].Spelare)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.Write("☻");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
                     }
 
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
                         Console.Write(" ");
                     }
+
                 }
 
                 Console.WriteLine();
             }
+
+            Console.ForegroundColor = ConsoleColor.White;
             PrintStats(spelare);
         }
 
@@ -144,7 +152,7 @@ namespace Mystiska_Grottan
         {
             Console.Write("╔");
 
-            for (int i = 0; i < spelare.Namn.Length + spelare.PlayerLevel.ToString().Length + Spelare.Hp.ToString().Length + spelare.Ras.Length + 25; i++)
+            for (int i = 0; i < Spelare.Namn.Length + spelare.PlayerLevel.ToString().Length + Spelare.Hp.ToString().Length + Spelare.Ras.Length + 25; i++)
             {
                 Console.Write("═");
             }
@@ -160,7 +168,7 @@ namespace Mystiska_Grottan
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write($"NAME");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write($": { spelare.Namn}│");
+            Console.Write($": { Spelare.Namn}│");
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write($"HP");
             Console.ForegroundColor = ConsoleColor.White;
@@ -169,13 +177,13 @@ namespace Mystiska_Grottan
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write($"Race: ");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write($"{spelare.Ras}");
+            Console.Write($"{Spelare.Ras}");
             Console.Write($" ║");
             Console.WriteLine();
 
             Console.Write("╚");
 
-            for (int i = 0; i < spelare.Namn.Length + +spelare.PlayerLevel.ToString().Length + Spelare.Hp.ToString().Length + spelare.Ras.Length + 25; i++)
+            for (int i = 0; i < Spelare.Namn.Length + +spelare.PlayerLevel.ToString().Length + Spelare.Hp.ToString().Length + Spelare.Ras.Length + 25; i++)
             {
                 Console.Write("═");
             }
@@ -363,6 +371,7 @@ namespace Mystiska_Grottan
                 {
                     if (kvadratArray[i, j].Monster && kvadratArray[i, j].Spelare)
                     {
+                        spelaresTur = true;
                         Fight(kvadratArray[i, j], spelare);
                     }
 
@@ -383,9 +392,9 @@ namespace Mystiska_Grottan
 
         private static void Fight(Kvadrat kvadrat, Spelare spelare)
         {
-            bool fight = true;
+            playerInFight = true;
 
-            while (fight)
+            while (playerInFight)
             {
                 Console.Clear();
                 DrawFight(kvadrat, spelare);
@@ -489,7 +498,7 @@ namespace Mystiska_Grottan
 
             if (kvadrat.Fiende.FiendeTyp == "King-Slime")
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
                 Console.Write($"{kvadrat.Fiende.FiendeGrafik.Substring(0, 55)}");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"{kvadrat.Fiende.FiendeGrafik.Substring(55)}");
@@ -517,127 +526,242 @@ namespace Mystiska_Grottan
 
         private static void DrawFight(Kvadrat kvadrat, Spelare spelare)
         {
+
             PrintEnemy(kvadrat);
             PrintStats(spelare);
             Console.WriteLine();
-            Console.WriteLine("╔════════════════════════════════╗");
-            for (int i = 0; i < fightMeny.GetLength(0); i++)
+
+            if (spelaresTur)
             {
-                Console.Write("   ");
-
-                if (fightMeny[i, 1] == "1")
+                Console.WriteLine("╔════════════════════════════════╗");
+                for (int i = 0; i < fightMeny.GetLength(0); i++)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write(fightMeny[i, 0]);
-                    Console.ForegroundColor = ConsoleColor.White;
-                }
+                    Console.Write("   ");
 
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(fightMeny[i, 0]);
-                }
-            }
-
-            Console.WriteLine();
-            Console.WriteLine("╚════════════════════════════════╝");
-
-            Console.WriteLine();
-
-            ConsoleKeyInfo input = Console.ReadKey(true);
-
-            if (input.Key == ConsoleKey.RightArrow && fightMenyVal != 3)
-            {
-                fightMeny[fightMenyVal, 1] = "0";
-                fightMenyVal++;
-                fightMeny[fightMenyVal, 1] = "1";
-            }
-
-
-            if (input.Key == ConsoleKey.LeftArrow && fightMenyVal != 0)
-            {
-                fightMeny[fightMenyVal, 1] = "0";
-                fightMenyVal--;
-                fightMeny[fightMenyVal, 1] = "1";
-            }
-
-            if (input.Key == ConsoleKey.Enter)
-            {
-                if (fightMenyVal == 0)
-                {
-                    Attack(kvadrat);
-                }
-
-                else if (fightMenyVal == 1)
-                {
-
-                    Spelare.Inventory[0].Vald = true;
-
-                    bool vald = false;
-
-                    int menyVal = 0;
-
-                    while (!vald)
+                    if (fightMeny[i, 1] == "1")
                     {
-                        Console.Clear();
-                        PrintEnemy(kvadrat);
-                        PrintStats(spelare);
-                        Console.WriteLine();
-                        spelare.PrintInventory();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(fightMeny[i, 0]);
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
 
-
-                        ConsoleKeyInfo input2 = Console.ReadKey(true);
-
-                        if (input2.Key == ConsoleKey.UpArrow)
-                        {
-                            if (menyVal != 0)
-                            {
-                                Spelare.Inventory[menyVal].Vald = false;
-                                menyVal--;
-                                Spelare.Inventory[menyVal].Vald = true;
-
-                                Console.Beep(300, 100);
-                            }
-                        }
-
-                        if (input2.Key == ConsoleKey.DownArrow)
-                        {
-                            if (menyVal < Spelare.Inventory.Count - 1)
-                            {
-                                Spelare.Inventory[menyVal].Vald = false;
-                                menyVal++;
-                                Spelare.Inventory[menyVal].Vald = true;
-
-                                Console.Beep(300, 100);
-                            }
-                        }
-
-                        if (input2.Key == ConsoleKey.Enter)
-                        {
-                            Spelare.Inventory[menyVal].AnvändFöremål(kvadrat);
-                            vald = true;
-                        }
-
-                        Console.Clear();
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write(fightMeny[i, 0]);
                     }
                 }
 
-                else if (fightMenyVal == 2)
-                {
+                Console.WriteLine();
+                Console.WriteLine("╚════════════════════════════════╝");
 
+
+                Console.WriteLine();
+
+                ConsoleKeyInfo input = Console.ReadKey(true);
+
+                if (input.Key == ConsoleKey.RightArrow && fightMenyVal != 3)
+                {
+                    fightMeny[fightMenyVal, 1] = "0";
+                    fightMenyVal++;
+                    fightMeny[fightMenyVal, 1] = "1";
                 }
 
-                else
-                {
 
+                if (input.Key == ConsoleKey.LeftArrow && fightMenyVal != 0)
+                {
+                    fightMeny[fightMenyVal, 1] = "0";
+                    fightMenyVal--;
+                    fightMeny[fightMenyVal, 1] = "1";
+                }
+
+                if (input.Key == ConsoleKey.Enter)
+                {
+                    if (fightMenyVal == 0)
+                    {
+                        Attack(kvadrat);
+                    }
+
+                    else if (fightMenyVal == 1)
+                    {
+
+                        Spelare.Inventory[0].Vald = true;
+
+                        bool vald = false;
+
+                        int menyVal = 0;
+
+                        while (!vald)
+                        {
+                            Console.Clear();
+                            PrintEnemy(kvadrat);
+                            PrintStats(spelare);
+                            Console.WriteLine();
+                            spelare.PrintInventory();
+
+
+                            ConsoleKeyInfo input2 = Console.ReadKey(true);
+
+                            if (input2.Key == ConsoleKey.UpArrow)
+                            {
+                                if (menyVal != 0)
+                                {
+                                    Spelare.Inventory[menyVal].Vald = false;
+                                    menyVal--;
+                                    Spelare.Inventory[menyVal].Vald = true;
+
+                                    Console.Beep(300, 100);
+                                }
+                            }
+
+                            if (input2.Key == ConsoleKey.DownArrow)
+                            {
+                                if (menyVal < Spelare.Inventory.Count - 1)
+                                {
+                                    Spelare.Inventory[menyVal].Vald = false;
+                                    menyVal++;
+                                    Spelare.Inventory[menyVal].Vald = true;
+
+                                    Console.Beep(300, 100);
+                                }
+                            }
+
+                            if (input2.Key == ConsoleKey.Enter)
+                            {
+                                Spelare.Inventory[menyVal].AnvändFöremål(kvadrat);
+                                vald = true;
+                                spelaresTur = false;
+                            }
+
+                            Console.Clear();
+                        }
+                    }
+
+                    else if (fightMenyVal == 2)
+                    {
+                        Pass();
+                        spelaresTur = false;
+                    }
+
+                    else
+                    {
+                        Flee();
+                        spelaresTur = false;
+                    }
                 }
             }
 
+            else if (!spelaresTur)
+            {
+                FiendeAttack(kvadrat.Fiende);
+                spelaresTur = true;
+            }
+        }
+
+        private static void FiendeAttack(Fiende fiende)
+        {
+            for (int i = 0; i < fiende.FiendeTyp.Length; i++)
+            {
+                Console.Write(fiende.FiendeTyp[i]);
+                Thread.Sleep(100);
+            }
+
+            for (int i = 0; i < " is attacking".Length; i++)
+            {
+                Console.Write(" is attacking"[i]);
+                Thread.Sleep(100);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(fiende.FiendeTyp + " dealt " + fiende.Attack + "hp");
+            Spelare.Hp -= fiende.Attack;
+
+            Console.WriteLine("Remaining HP: " + Spelare.Hp);
+
+            if (Spelare.Hp <= 0)
+            {
+                for (int i = 0; i < $"{Spelare.Namn} was defeated...".Length; i++)
+                {
+                    Console.Write($"{Spelare.Namn} was defeated..."[i]);
+                    Thread.Sleep(100);
+                }
+
+                Thread.Sleep(2000);
+
+                GameOver();
+            }
+
+            Thread.Sleep(2000);
+        }
+
+        private static void GameOver()
+        {
+            Console.Clear();
+            Console.WriteLine("Game Over! \nPress any button to restart the game");
+            Console.ReadKey(true);
+            Game.Main();
+        }
+
+        private static void Flee()
+        {
+            Random rng = new Random();
+            int randomTal = rng.Next(1, 7);
+
+            for (int i = 0; i < "Attempting to Escape".Length; i++)
+            {
+                Console.Write("Attempting to Escape...."[i]);
+                Thread.Sleep(100);
+            }
+
+            Console.WriteLine();
+
+            if (randomTal > 3)
+            {
+                for (int i = 0; i < "Successful Escape".Length; i++)
+                {
+                    Console.Write("Successful Escape"[i]);
+                    Thread.Sleep(100);
+                    playerInFight = false;
+                }
+            }
+
+            else
+            {
+                for (int i = 0; i < "Unsuccessful Escape".Length; i++)
+                {
+                    Console.Write("Unsuccessful Escape"[i]);
+                    Thread.Sleep(100);
+                }
+            }
+        }
+
+        private static void Pass()
+        {
+            throw new NotImplementedException();
         }
 
         private static void Attack(Kvadrat kvadrat)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < Spelare.Namn.Length; i++)
+            {
+                Console.Write(Spelare.Namn[i]);
+                Thread.Sleep(100);
+            }
+
+            for (int i = 0; i < " is attacking".Length; i++)
+            {
+                Console.Write(" is attacking"[i]);
+                Thread.Sleep(100);
+            }
+
+            Console.WriteLine();
+            Console.WriteLine(Spelare.Namn + " dealt " + Spelare.Attack + " damage");
+            kvadrat.Fiende.Hp -= Spelare.Attack;
+
+            Console.WriteLine("Remaining HP: " + kvadrat.Fiende.Hp);
+            Thread.Sleep(2000);
+
+            spelaresTur = false;
         }
 
         public int Höjd { get { return this.höjd; } set { this.höjd = value; } }

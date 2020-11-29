@@ -86,5 +86,7 @@
         public string FiendeTyp { get { return this.fiendeTyp; } set { this.fiendeTyp = value; } }
 
         public int Hp { get { return this.hp; } set { this.hp = value; } }
+
+        public int Attack { get { return this.attack; } set { this.attack = value; } }
     }
 }

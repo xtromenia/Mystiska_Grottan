@@ -8,41 +8,41 @@ namespace Mystiska_Grottan
     public class Spelare
     {
         private static int score;
-        private static int hp;
-        private int attack, playerLevel;
-        private string namn, ras;
+        private static int hp, attack;
+        private int playerLevel;
+        private static string namn, ras;
         private static List<Föremål> inventory = new List<Föremål>();
 
 
-        public Spelare(string namn, string ras)
+        public Spelare(string inputNamn, string inputRas)
         {
             score = 0;
             this.playerLevel = 1;
-            this.namn = namn;
-            this.ras = ras;
+            namn = inputNamn;
+            ras = inputRas;
 
             if (ras == "Human")
             {
-                hp = 100;
-                this.attack = 20;
+                hp = 2;
+                attack = 20;
             }
 
             if (ras == "Dwarf")
             {
                 hp = 120;
-                this.attack = 15;
+                attack = 15;
             }
 
             if (ras == "Orc")
             {
                 hp = 60;
-                this.attack = 35;
+                attack = 35;
             }
 
             if (ras == "Elf")
             {
                 hp = 80;
-                this.attack = 25;
+                attack = 25;
             }
 
             for (int i = 0; i < 2; i++)
@@ -169,10 +169,10 @@ namespace Mystiska_Grottan
             return längd;
         }
 
-        public string Ras
+        public static string Ras
         {
-            get { return this.ras; }
-            set { this.ras = value; }
+            get { return ras; }
+            set { ras = value; }
         }
 
         public static int Score
@@ -193,10 +193,16 @@ namespace Mystiska_Grottan
             set { this.playerLevel = value; }
         }
 
-        public string Namn
+        public static string Namn
         {
-            get { return this.namn; }
-            set { this.namn = value; }
+            get { return namn; }
+            set { namn = value; }
+        }
+
+        public static int Attack
+        {
+            get { return attack; }
+            set { attack = value; }
         }
 
         public static List<Föremål> Inventory
