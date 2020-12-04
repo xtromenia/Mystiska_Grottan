@@ -737,7 +737,7 @@ namespace Mystiska_Grottan
 
         private static void Pass()
         {
-            throw new NotImplementedException();
+           
         }
 
         private static void Attack(Kvadrat kvadrat)
